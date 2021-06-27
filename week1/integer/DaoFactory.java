@@ -8,7 +8,11 @@ package week1.integer;
  * @author Jungsoo
  *
  */
+
+@Configuration // 애플리케이션 컨텍스트 또는 빈 팩토리가 사용할 설정정보라는 표시
 public class DaoFactory {
+	
+	@Bean // 오브젝트 생성을 담당하는 IoC용 메서드라는 표시
 	public UserDao userDao() {
 		UserDao dao = new UserDao(connectionMaker()); // UserDao가 사용할 connectionMaker 구현 클래스를 결정하고 두 객체 사이의 의존관계를 설정한다.
 		
@@ -16,6 +20,7 @@ public class DaoFactory {
 	}
 	
 	// 메서드 분리
+	@Bean
 	public ConnectionMaker connectionMaker() {
 		return new DConnectionMaker();
 	}

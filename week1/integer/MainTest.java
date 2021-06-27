@@ -6,7 +6,9 @@ public class MainTest {
 	// 테스트용 main 메서드 (client)
 	public static void main(String[] args) throws ClassNotFoundException, SQLException{
 		
-		UserDao dao = new DaoFactory().userDao();
+		ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+		
+		UserDao dao = context.getBean("userDao", UserDao.class);
 		
 		User user = new User();
 		user.setId("whiteship2");
