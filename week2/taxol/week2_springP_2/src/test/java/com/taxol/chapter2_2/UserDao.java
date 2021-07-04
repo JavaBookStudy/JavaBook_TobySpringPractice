@@ -15,7 +15,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
  * DataSource를 사용하는 UserDao
  * 
  * list 2.7
- * deleteAll & getCount가 추가되었다. 
+ * deleteAll & getCount가 추가되었다.
+ * 
+ * list 2-14
+ * get() 메소드에서 데이터를 찾지 못하면 예외를 발생 시키도록 수정하였다. 
 */
 public class UserDao {
 	

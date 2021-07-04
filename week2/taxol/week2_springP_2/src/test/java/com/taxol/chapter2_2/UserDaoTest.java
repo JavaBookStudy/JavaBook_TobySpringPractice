@@ -20,8 +20,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
  * list 2-11
  * 여러개의 User를 등록해보면서 getCount를 테스트한다.
  * 
- * list 2-14
- * get() 메소드에서 데이터를 찾지 못하면 예외를 발생 시키도록 수정하였다.
+ * list 2-13
+ * get() 메소드의 id가 없는 경우 대비한 예외상황 테스트
 */
 public class UserDaoTest {
 	@Test
