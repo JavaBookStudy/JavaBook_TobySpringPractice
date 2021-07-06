@@ -19,22 +19,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /*
- * list 2-18
- * 스프링 테스트 컨텍스트를 적용한 UserDaoTest
- * 
- * list 2-20
- * 테스트를 위한 수동 DI 적용
+ * list 2-23
+ * 애플리케이션 컨텍스트가 없는 DI 테스트
 */
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations="/applicationContext.xml")	// 자동으로 만들어줄 ApplicationContext 위치 지정
-//@DirtiesContext
-public class UserDaoTest {
+public class UserDaoTest_notAppContext {
 	
-	@Autowired
-	private ApplicationContext context;
-	
-	@Autowired
 	private UserDao dao;
 	
 	private User user1;
@@ -44,16 +34,14 @@ public class UserDaoTest {
 	@Before
 	public void setUp() {
 		
-		// 
-		//DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost:3306/tobyspring?useSSL=false", "ssafy", "ssafy", true);
-		//dao.setDataSource(dataSource);
+		dao = new UserDao();
 		
+		DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost:3306/tobyspring?useSSL=false", "ssafy", "ssafy", true);
+		dao.setDataSource(dataSource);
+
 		user1 = new User("mylover", "park", "springno1");
 		user2 = new User("taxol", "han", "springno2");
 		user3 = new User("opink", "park", "springno3");
-		
-		System.out.println(this.context);
-		System.out.println(this);
 	}
 	
 	@Test
