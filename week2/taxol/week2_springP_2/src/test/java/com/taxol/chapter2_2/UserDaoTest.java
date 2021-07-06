@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -22,15 +23,33 @@ import org.springframework.dao.EmptyResultDataAccessException;
  * 
  * list 2-13
  * get() 메소드의 id가 없는 경우 대비한 예외상황 테스트
+ * 
+ * list 2-15
+ * @Before를 사용해 중복 코드를 제거하였다.
+ * 
+ * list 2-16
+ * User를 픽스처로 사용하기 위해 인스턴스로 뽑아내었다.
 */
 public class UserDaoTest {
+	
+	private UserDao dao;
+	private User user1;
+	private User user2;
+	private User user3;
+	
+	
+	@Before
+	public void setUp() {
+		ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+		this.dao = context.getBean("userDao", UserDao.class);
+		
+		user1 = new User("mylover", "park", "springno1");
+		user2 = new User("taxol", "han", "springno2");
+		user3 = new User("opink", "park", "springno3");
+	}
+	
 	@Test
 	public void addAndGet() throws SQLException{
-		ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
-		UserDao dao = context.getBean("userDao", UserDao.class);
-		
-		User user1 = new User("gyumee", "park", "spring01");
-		User user2 = new User("taxol", "han", "spring02");
 		
 		dao.deleteAll();
 		assertThat(dao.getCount(), is(0));
@@ -52,12 +71,6 @@ public class UserDaoTest {
 	
 	@Test
 	public void count() throws SQLException {
-		ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
-		UserDao dao = context.getBean("userDao", UserDao.class);
-		
-		User user1 = new User("mylover", "park", "springno1");
-		User user2 = new User("taxol", "han", "springno2");
-		User user3 = new User("opink", "park", "springno3");
 		
 		dao.deleteAll();
 		assertThat(dao.getCount(), is(0));
@@ -75,8 +88,6 @@ public class UserDaoTest {
 	// 주어진 id가 없으면 EmptyResultDataAccessException 와 같은 예외가 떨어지게 하는 것
 	@Test(expected = EmptyResultDataAccessException.class)
 	public void getUserFailure() throws SQLException{
-		ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-		UserDao dao = context.getBean("userDao" , UserDao.class);
 		
 		dao.deleteAll();
 		assertThat(dao.getCount(), is(0));
