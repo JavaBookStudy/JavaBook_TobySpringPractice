@@ -19,11 +19,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /*
- * list 2-18
- * 스프링 테스트 컨텍스트를 적용한 UserDaoTest
- * 
- * list 2-20
- * 테스트를 위한 수동 DI 적용
+ * list 2-18 : 스프링 테스트 컨텍스트를 적용한 UserDaoTest
+ * list 2-20 : 테스트를 위한 수동 DI 적용
 */
 
 @RunWith(SpringJUnit4ClassRunner.class)

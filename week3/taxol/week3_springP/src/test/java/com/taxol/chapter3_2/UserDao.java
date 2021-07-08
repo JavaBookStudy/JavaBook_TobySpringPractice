@@ -16,6 +16,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
  * list 3-3  : JDBC 예외처리가 발생해도 resource를 반환하도록 만들었다.
  * list 3-7  : 템플릿 메서드 패턴 적용 -> 추상 클래스로 변경하였다가 전략 패턴을 사용하면서 다시 일반 클래스로 변환함
  * list 3-10 : 전략 패턴에 따라 deleteAll() 메서드에서 변하는 부분을 다른 오브젝트로 분리하였다가, interface를 통해 연결한다.
+ * list 3-11 : DI 적용을 위해 클라이언트/컨텍스트 분리하였다.
 */
 public class UserDao {
 	
@@ -69,15 +70,21 @@ public class UserDao {
 		return user;
 	}
 	
+	// 클라이언트 책임을 담당
 	public void deleteAll() throws SQLException{
+		StatementStrategy st = new DeleteAllStatement();	// 전략 클래스를 선택한다.
+		jdbcContextWithStatementStrategy(st);				// 컨텍스트를 호출하며, 전략 오브젝트를 전달한다.
+	}
+	
+	// context에 해당하는 부분이다. 이는 바뀌지 않는 코드 들만 모아놓았다.
+	public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException{
 		Connection c = null;
 		PreparedStatement ps = null;
 		
 		try {
 			c = dataSource.getConnection();
 			//ps = makeStatement(c);
-			StatementStrategy strategy = new DeleteAllStatement();
-			ps = strategy.makeStatement(c);
+			ps = stmt.makePreparedStatement(c);		// 이와 같이 DI로 넣어준다.
 			
 			ps.executeUpdate();
 		}catch (SQLException e) {
@@ -96,11 +103,9 @@ public class UserDao {
 				}
 			}
 		}
-		
-		ps.close();
-		c.close();
 	}
 	
+	// 템플릿 메서드 패턴
 	//abstract protected PreparedStatement makeStatement(Connection c) throws SQLException;
 
 	public int getCount() throws SQLException {
