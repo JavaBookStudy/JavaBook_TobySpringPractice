@@ -1,4 +1,4 @@
-package com.taxol.chapter3_2;
+package com.taxol.chapter3_3;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,6 +18,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
  * list 3-10 : 전략 패턴에 따라 deleteAll() 메서드에서 변하는 부분을 다른 오브젝트로 분리하였다가, interface를 통해 연결한다.
  * list 3-11 : DI 적용을 위해 클라이언트/컨텍스트 분리하였다.
  * list 3-12 : add() 메서드도 PreparedStatement 생성 로직을 분리하였다.
+ * list 3-17 : add() 메서드에서 로컬 변수를 직접 사용하도록 수정
+ * list 3-18 : deleteAll(), add() 메서드를 익명 클래스를 통해 사용하도록 수정
 */
 public class UserDao {
 	
@@ -27,9 +29,31 @@ public class UserDao {
 		this.dataSource = dataSource;
 	}
 
-	public void add(User user) throws SQLException {
-		StatementStrategy st = new AddStatement(user);
-		jdbcContextWithStatementStrategy(st);
+	public void add(final User user) throws SQLException {
+		/*
+		class AddStatement implements StatementStrategy{
+			@Override
+			public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+				PreparedStatement ps = c.prepareStatement(
+						"insert into users(id, name, password) values(?, ?, ?)");
+				ps.setString(1, user.getId());
+				ps.setString(2, user.getName());
+				ps.setString(3, user.getPassword());
+				return ps;
+			}
+		}
+		*/
+		jdbcContextWithStatementStrategy(new StatementStrategy() {
+			@Override
+			public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+				PreparedStatement ps = c.prepareStatement(
+						"insert into users(id, name, password) values(?, ?, ?)");
+				ps.setString(1, user.getId());
+				ps.setString(2, user.getName());
+				ps.setString(3, user.getPassword());
+				return ps;
+			}
+		});
 	}
 	
 	
@@ -61,8 +85,12 @@ public class UserDao {
 	
 	// 클라이언트 책임을 담당
 	public void deleteAll() throws SQLException{
-		StatementStrategy st = new DeleteAllStatement();	// 전략 클래스를 선택한다.
-		jdbcContextWithStatementStrategy(st);				// 컨텍스트를 호출하며, 전략 오브젝트를 전달한다.
+		jdbcContextWithStatementStrategy(new StatementStrategy() {
+			@Override
+			public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+				return c.prepareStatement("delete from users");
+			}
+		});
 	}
 	
 	// context에 해당하는 부분이다. 이는 바뀌지 않는 코드 들만 모아놓았다.
