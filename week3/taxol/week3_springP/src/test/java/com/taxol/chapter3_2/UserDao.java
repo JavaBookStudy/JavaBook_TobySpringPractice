@@ -17,6 +17,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
  * list 3-7  : 템플릿 메서드 패턴 적용 -> 추상 클래스로 변경하였다가 전략 패턴을 사용하면서 다시 일반 클래스로 변환함
  * list 3-10 : 전략 패턴에 따라 deleteAll() 메서드에서 변하는 부분을 다른 오브젝트로 분리하였다가, interface를 통해 연결한다.
  * list 3-11 : DI 적용을 위해 클라이언트/컨텍스트 분리하였다.
+ * list 3-12 : add() 메서드도 PreparedStatement 생성 로직을 분리하였다.
 */
 public class UserDao {
 	
@@ -27,22 +28,10 @@ public class UserDao {
 	}
 
 	public void add(User user) throws SQLException {
-		// 1. DB Connection을 가져온다.
-		Connection c = dataSource.getConnection();
-		
-		// 2. SQL을 담은 Statement를 만든다
-		PreparedStatement ps = c.prepareStatement(
-				"insert into users(id, name, password) values(?, ?, ?)");
-		ps.setString(1, user.getId());
-		ps.setString(2, user.getName());
-		ps.setString(3, user.getPassword());
-		
-		// 3. Statement를 실행한다
-		ps.executeUpdate();
-		
-		ps.close();
-		c.close();
+		StatementStrategy st = new AddStatement(user);
+		jdbcContextWithStatementStrategy(st);
 	}
+	
 	
 	public User get(String id) throws SQLException {
 		Connection c = dataSource.getConnection();
