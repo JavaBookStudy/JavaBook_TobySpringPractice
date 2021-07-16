@@ -18,8 +18,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
  * list 3-10 : 전략 패턴에 따라 deleteAll() 메서드에서 변하는 부분을 다른 오브젝트로 분리하였다가, interface를 통해 연결한다.
  * list 3-11 : DI 적용을 위해 클라이언트/컨텍스트 분리하였다.
  * list 3-12 : add() 메서드도 PreparedStatement 생성 로직을 분리하였다.
- * list 3-17 : add() 메서드에서 로컬 변수를 직접 사용하도록 수정
- * list 3-18 : deleteAll(), add() 메서드를 익명 클래스를 통해 사용하도록 수정
+ * list 3-17 : add() 메서드에서 로컬 변수를 직접 사용하도록 수정.
+ * list 3-18 : deleteAll(), add() 메서드를 익명 클래스를 통해 사용하도록 수정.
 */
 public class UserDao {
 	
