@@ -4,10 +4,10 @@
 
 ## Contributor
 
-| 아이디 | 이름 |
-|--|--|
-| Intger | 김정수 |
-| taxol | 한주연 |
+| 아이디 | 이름 | Github |
+|--|--|--|
+| Intger | 김정수 | - |
+| taxol | 한주연 | taxol1203@github.io|
 
 ### 올리는 방법  
 ```JavaBook_TobySpringPractice/week0/본인이름``` 폴더 안에 코드를 넣으면 됩니다.  
