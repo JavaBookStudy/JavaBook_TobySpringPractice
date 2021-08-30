@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- <bean id="connectionMaker" class="com.taxol.chapter1_8.DConnectionMaker" /> -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:mysql://localhost:3306/tobyspring?useSSL=false"/>
+		<property name="username" value="ssafy"/>
+		<property name="password" value="ssafy"/>
+	</bean>
+	
+	<bean id="userDao" class="com.taxol.dao.UserDaoJdbc">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+		
+	<!-- 이제 다시 userService 아이디를 사용할 수 있다. -->
+	<bean id = "userService" class="com.taxol.service.UserServiceImpl">
+		<property name="userDao" ref="userDao"/>
+		<property name="mailSender" ref="mailSender"/>
+	</bean>
+	
+	<!-- 테스트용 UserService 등록 -->
+	<bean id="testUserService" 
+      class="com.taxol.proxy.UserServiceTest$TestUserServiceImpl" 
+      parent="userService" />
+	
+	<bean id = "transactionManager"
+		  class = "org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref = "dataSource"></property>	  
+	</bean>
+	
+	<bean id="mailSender" class = "com.taxol.service.DummyMailSender"/>
+	
+	<!-- 어드바이스 -->
+	<bean id ="transactionAdvice" class="com.taxol.service.TransactionAdvice">
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+	
+	<!-- 새로운 포인트 컷 -->
+	<!-- <bean id ="transactionPointcut" class="com.taxol.proxy.NameMatchClassMethodPointcut">
+		<property name="mappedClassName" value="*ServiceImpl"/>
+		<property name="mappedName" value="upgrade*"/>
+	</bean> -->
+	<!-- 포인트 컷 표현식을 사용한 빈 설정 -->
+	<bean id ="transactionPointcut" class="org.springframework.aop.aspectj.AspectJExpressionPointcut">
+		<property name="expression" value="execution(* *..*ServiceImpl.upgrade*(..))"/>
+	</bean>
+	
+	<!-- 어드바이저 -->
+	<bean id ="transactionAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+		<property name="advice" ref="transactionAdvice"/>
+		<property name="pointcut" ref="transactionPointcut"/>
+	</bean>
+	
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+	
+
+</beans>
