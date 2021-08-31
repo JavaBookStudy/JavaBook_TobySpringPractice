@@ -6,7 +6,7 @@
 
 | 아이디 | 이름 | Github |
 |--|--|--|
-| Intger | 김정수 | - |
+| jsoo00 | 김정수 | - |
 | taxol | 한주연 | https://github.com/taxol1203 |
 
 ### 올리는 방법  
