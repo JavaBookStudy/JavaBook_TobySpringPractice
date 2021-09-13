@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<!-- <bean id="connectionMaker" class="com.taxol.chapter1_8.DConnectionMaker" /> -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:mysql://localhost:3306/tobyspring?useSSL=false"/>
+		<property name="username" value="ssafy"/>
+		<property name="password" value="ssafy"/>
+	</bean>
+	
+	<bean id="userDao" class="com.taxol.dao.UserDaoJdbc">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<!-- 이제 userService는 userServiceTx의 오브젝트가 주입 된다. -->
+	<!-- <bean id="userService" class ="com.taxol.service.UserServiceTx">
+		<property name="transactionManager" ref="transactionManager"></property>
+		<property name="userService" ref="userServiceImpl"></property>
+	</bean> -->
+	
+	<!-- UserService에 대한 트랜잭션 프록시 팩토리 빈 -->
+	<bean id="userService" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target" ref="userServiceImpl" />
+		<property name="interceptorNames">
+			<list>
+				<value>transactionAdvisor</value>
+			</list>
+		</property>
+	</bean>
+		
+	<bean id = "userServiceImpl" class="com.taxol.service.UserServiceImpl">
+		<property name="userDao" ref="userDao"/>
+		<property name="mailSender" ref="mailSender"/>
+	</bean>
+	<bean id = "transactionManager"
+		  class = "org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref = "dataSource"></property>	  
+	</bean>
+	<bean id="mailSender" class = "com.taxol.service.DummyMailSender"/>
+	
+	<!-- 어드바이스 -->
+	<bean id ="transactionAdvice" class="com.taxol.service.TransactionAdvice">
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+	
+	<!-- 스프링이 제공하는 포인트컷 클래스 사용 -->
+	<bean id ="transactionPointcut" class="org.springframework.aop.support.NameMatchMethodPointcut">
+		<property name="mappedName" value="upgrade*"/>
+	</bean>
+	
+	<!-- 어드바이저 -->
+	<bean id ="transactionAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+		<property name="advice" ref="transactionAdvice"/>
+		<property name="pointcut" ref="transactionPointcut"/>
+	</bean>
+	
+	<!-- 빈 이름을 사용한 표현식을 갖는 포인트컷과 어드바이저 -->
+	<aop:config>
+		<aop:advisor advice-ref="transactionAdvice" pointcut="bean(*Service)"/>
+	</aop:config>
+	
+	<!-- 빈 으로 등록하는 것 보다 tx 스키다가 더 장점이 많다
+	<bean id="transactionAdvice" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly,timeout_30</prop>
+                <prop key="upgrade*">PROPAGATION_REQUIRES_NEW,ISOLATION_SERIALIZABLE</prop>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+     -->
+    <tx:advice id = "transactionAdvice">
+    	<tx:attributes>
+			<tx:method name="get*" read-only="true"/>    	
+			<tx:method name="*"/>    	
+    	</tx:attributes>
+    </tx:advice>
+</beans>
